@@ -43,17 +43,21 @@ class BeurerScale
 
   def transfer
     @device.open do |device|
-      device.auto_detach_kernel_driver = true
-			device.claim_interface(0) do |handle|
-				result = handle.control_transfer(
-					bmRequestType: 0x21, # TODO move to const.
-					bmRequest: USB_CTRL_REQUEST,
-					wValue: USB_CTRL_VALUE,
-					wIndex: 0x0000,
-					dataOut: USB_CTRL_DATA_FIRST # ???
-				)
-				puts result
-			end
+      begin
+	device.detach_kernel_driver(USB_INTERFACE_IN)
+      rescue Exception => e
+	puts "couldn't detach: #{e.message}"
+      end
+      device.claim_interface(USB_INTERFACE_IN) do |handle|
+	result = handle.control_transfer(
+	  bmRequestType: 0x21, # TODO move to const.
+	  bRequest: USB_CTRL_REQUEST,
+	  wValue: USB_CTRL_VALUE,
+	  wIndex: 0x0000,
+	  dataOut: USB_CTRL_DATA_FIRST # ???
+	)
+	puts result
+      end
     end
   end
 end
