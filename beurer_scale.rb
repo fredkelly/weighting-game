@@ -43,10 +43,8 @@ class BeurerScale
 
   def transfer
     @device.open do |device|
-      begin
+      if RUBY_PLATFORM=~/linux/i && device.kernel_driver_active?(USB_INTERFACE_IN)
 	device.detach_kernel_driver(USB_INTERFACE_IN)
-      rescue Exception => e
-	puts "couldn't detach: #{e.message}"
       end
       device.claim_interface(USB_INTERFACE_IN) do |handle|
 	result = handle.control_transfer(
