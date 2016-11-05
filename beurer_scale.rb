@@ -42,15 +42,18 @@ class BeurerScale
   end
 
   def transfer
-    @device.open_interface(0) do |handle|
-      result = handle.control_transfer(
-        bmRequestType: 0x21, # TODO move to const.
-        bmRequest: USB_CTRL_REQUEST,
-        wValue: USB_CTRL_VALUE,
-        wIndex: 0x0000,
-        dataOut: USB_CTRL_DATA_FIRST # ???
-      )
-      puts result
+    @device.open do |device|
+      device.auto_detach_kernel_driver = true
+			device.claim_interface(0) do |handle|
+				result = handle.control_transfer(
+					bmRequestType: 0x21, # TODO move to const.
+					bmRequest: USB_CTRL_REQUEST,
+					wValue: USB_CTRL_VALUE,
+					wIndex: 0x0000,
+					dataOut: USB_CTRL_DATA_FIRST # ???
+				)
+				puts result
+			end
     end
   end
 end
